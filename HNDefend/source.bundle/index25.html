@@ -1,0 +1,165 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"content="width=device-width;" >
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/highcharts.js"></script>
+    <script type="text/javascript" src="js/exporting.js"></script>
+    <script type="text/javascript">
+        var myData = [] ;
+        var chart;
+    Highcharts.setOptions({
+        lang: {
+        resetZoom : '还原柱状图'
+        },
+        global: {
+            useUTC: false
+        }
+    });
+    function updateData(x,y)
+        {
+            //alert('abc');
+            var series = chart.series[0];
+            series.addPoint([x, y], true, true);
+        }
+        var mColor = '#0FF';
+        function getColr(tv)
+        {
+            if(tv>=10 && tv<25)
+            {
+                mColor = '#FF0';
+            } else if(tv>=25 && tv<50){
+                mColor = '#0F0';
+            } else if(tv>=50 && tv<100){
+                mColor = '#00F';
+            } else if(tv>=100 && tv<250){
+                mColor = '#F0F';
+            } else if(tv>=250){
+                mColor = '#F00';
+            } else {
+                mColor = '#0FF';
+            }
+        }
+    function  convertStringToJSON(string)
+    {
+        //清空数组
+        myData = [];
+        var testJson = string;
+        for(var i =0; i < testJson.length; i++)
+        {
+            var temTime = testJson[i].time;
+            var temData = testJson[i].data;
+            var finaTime = (new Date(temTime.replace(/-/g, "/"))).getTime();
+            var finalData = parseFloat(temData);
+            //判断颜色
+            getColr(finalData);
+            //alert(temData);
+            myData.push({
+                      color:mColor,
+                      x: finaTime,
+                      y: finalData
+                      });
+        }
+        
+        //abc
+        chart = new Highcharts.Chart({
+                                     chart: {
+                                     width:562,
+                                     height:204,
+                                     renderTo: 'chart_spline', //图表放置的容器，DIV
+                                     defaultSeriesType: 'column', //图表类型为曲线图
+                                     zoomType:'x',
+                                     marginTop:15
+                                     },
+                                     title: {
+                                     text: ' '  //图表标题
+                                     },
+                                     xAxis: { //设置X轴
+                                     startOnTick: true,
+                                     minTickInterval: 3600 * 1000,
+                                     type: 'datetime',  //X轴为日期时间类型
+                                     dateTimeLabelFormats : {
+                                     hour: '%H时',
+                                     millisecond: '%H时',
+                                     second: '%H时',
+                                     minute: '%H时',
+                                     day: '%e日',
+                                     week: '%e日',
+                                     month: '%m月',
+                                     year: '%Y'
+                                     },
+                                     labels:{
+                                     style: {
+                                     color: '#6D869F',
+                                     'font-size':'15px',
+                                     }
+                                     }
+                                     },
+                                     yAxis: { //设置Y轴
+                                     minRange:6,
+                                     title: '',
+                                     min: 0 , //Y轴最小值
+                                     minorTickInterval: 10,//最小刻度
+                                     tickPixelInterval:20,//刻度间隔
+                                     labels:{
+                                     style: {
+                                     color: '#6D869F',
+                                     'font-size':'15px'
+                                     }
+                                     }
+                                     },
+                                     tooltip: {//当鼠标悬置数据点时的提示框
+                                     style: {
+                                     color: '#333333',
+                                     fontSize: '15px',
+                                     padding:'2px'
+                                     },
+                                     formatter: function() { //格式化提示信息
+                                     return ''+
+                                     Highcharts.dateFormat('%Y-%m-%d %H时', this.x) +'<br/>时降雨:'+
+                                     +Highcharts.numberFormat(this.y, 2)+'mm';
+
+                                     }
+                                     },
+                                     legend: {
+                                     enabled: false  //设置图例不可见
+                                     },
+                                     exporting: {
+                                     enabled: false  //设置导出按钮不可用
+                                     },
+                                     credits: {
+                                     text: '', //设置LOGO区文字
+                                     href: '' //设置LOGO链接地址
+                                     },
+                                     plotOptions: {
+                                     area: {
+                                     enableMouseTracking:true
+                                     }
+                                     },
+                                     
+                                     series: [{
+                                              data: (function() { //设置默认数据，这里是假数据，如果有真数据可以在页面加载时候用真数据替换掉                                               }
+                                                     return myData;
+                                                     })()
+                                              }]
+                                     });
+
+    }
+    
+    $(function() {
+      });
+
+    </script>
+    </head>
+
+    <body>
+        <div id="main2">
+            <div id="chart_spline" ></div>
+        </div>
+    </body>
+</html>
